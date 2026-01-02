@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pandas
+numpy
+chromadb==0.4.7
+faiss-cpu
+openai
+sqlalchemy
+python-dotenv
+requests

@@ -1,11 +1,14 @@
----
-title: Starbucks Recommendation
-emoji: 🌍
-colorFrom: red
-colorTo: pink
-sdk: docker
-pinned: false
-short_description: provides startbucks recommendation and ans related queries
----
+# ☕ Starbucks GenAI Assistant
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+A full-stack GenAI application using:
+- Streamlit (UI)
+- FastAPI (backend)
+- SQLite + ChromaDB
+- Docker
+
+## Run locally
+```bash
+docker build -t starbucks-genai .
+docker run -p 8000:8000 -p 8501:8501 \
+  -e OPENAI_API_KEY=your_key \
+  starbucks-genai
