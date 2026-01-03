@@ -3,6 +3,9 @@ import requests
 import pandas as pd
 import os
 import socket
+from PIL import Image
+from pathlib import Path
+
 
 # --- Auto-detect Docker network ---
 def in_docker():
@@ -19,12 +22,77 @@ if in_docker():
 else:
     BACKEND_URL = "http://localhost:8000/ask"  # when running on host
 
+
+# Resolve absolute path (HF-safe)
+BASE_DIR = Path(__file__).resolve().parent.parent
+LOGO_PATH = BASE_DIR / "assets" / "starbucks_logo.png"
+
+if LOGO_PATH.exists():
+    logo = Image.open(LOGO_PATH)
+    st.image(logo, width=120)
+else:
+    st.warning("Logo not found")
+
+st.markdown(
+    """
+    <h1 style='color:#00704A;'>Starbucks Recommendation System ☕</h1>
+    """,
+    unsafe_allow_html=True
+)
+st.markdown(
+    """
+    <style>
+    /* Section header text */
+    .section-header {
+        font-size: 22px;
+        font-weight: 600;
+        color: #00704A; /* Starbucks green */
+        margin-bottom: 6px;
+    }
+
+    /* Subtext / helper text */
+    .section-subtext {
+        font-size: 16px;
+        color: #1E3932;
+        margin-bottom: 12px;
+    }
+
+    /* Increase input font size */
+    textarea, input {
+        font-size: 16px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.set_page_config(page_title="Starbucks LLM", layout="wide")
 
-st.title("☕ Starbucks LLM Assistant")
-st.write("Ask a question about Starbucks menu items.")
 
-user_question = st.text_input("Enter your question")
+st.markdown(
+    """
+    <div style="
+        background-color:#F2F7F5;
+        padding:20px;
+        border-radius:12px;
+        margin-top:10px;
+        margin-bottom:20px;
+    ">
+        <div class='section-header'>☕ Ask a question about Starbucks menu items</div>
+        <div class='section-subtext'>
+            Type your question below (e.g., calories, caffeine, recommendations).
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+user_question = st.text_input(
+    label="Ask a question about Starbucks menu items",
+    placeholder="Example: Which Starbucks drink has the least sugar?",
+    label_visibility="collapsed"
+)
+
 
 if st.button("Ask"):
     if not user_question.strip():
@@ -42,12 +110,6 @@ if st.button("Ask"):
                 # --- LLM Answer ---
                 st.subheader("💬 LLM Answer")
                 st.write(data.get("answer", "No answer returned."))
-
-                # --- SQL Results ---
-                if "sql_results" in data and data["sql_results"]:
-                    st.subheader("📊 SQL Results")
-                    df = pd.DataFrame(data["sql_results"])
-                    st.dataframe(df, use_container_width=True)
 
         except Exception as e:
             st.error(f"Error connecting to backend: {e}")

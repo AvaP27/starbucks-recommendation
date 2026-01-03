@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#00704A"              # Starbucks green
+backgroundColor = "#EAF4F1"           # Light mint green (page background)
+secondaryBackgroundColor = "#FFFFFF" # Cards / containers
+textColor = "#1E3932"                 # Dark green text
+font = "sans serif"
