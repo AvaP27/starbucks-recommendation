@@ -7,7 +7,6 @@ sdk: docker
 app_port: 8501
 pinned: false
 ---
-
 # ☕ Starbucks GenAI Assistant
 
 A full-stack GenAI application using:
