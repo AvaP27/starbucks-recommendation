@@ -27,44 +27,37 @@ def in_docker():
 BACKEND_URL = (
     "http://backend:8000/ask"
     if in_docker()
-    else "http://backend:8000/ask"
+    else "http://127.0.0.1:8000/ask"
+"
 )
 
 
 # =========================================================
-# HARD OVERRIDE CSS (HF DARK-THEME KILL SWITCH)
+# GLOBAL CSS  (MINIMAL & SAFE)
 # =========================================================
 st.markdown(
     """
     <style>
-    /* Kill HF dark theme everywhere */
-    * {
-        color: #1E3932 !important;
-    }
-
+    /* Page background */
     html, body, .stApp {
-        background-color: #EAF4F1 !important;
+        background-color: #EAF4F1;
     }
 
     /* Inputs */
     input, textarea {
         background-color: #FFFFFF !important;
         color: #1E3932 !important;
-        border: 1px solid #C7DCD2 !important;
         border-radius: 8px !important;
+        border: 1px solid #C7DCD2 !important;
         font-size: 16px !important;
     }
 
     /* Buttons */
     button {
         background-color: #00704A !important;
-        color: #FFFFFF !important;
+        color: white !important;
         border-radius: 8px !important;
         font-weight: 600 !important;
-    }
-
-    button:hover {
-        background-color: #005F3D !important;
     }
     </style>
     """,
@@ -73,14 +66,17 @@ st.markdown(
 
 
 # =========================================================
-# LOGO (MAIN PAGE, STREAMLIT-NATIVE)
+# SIDEBAR LOGO  (STREAMLIT-NATIVE ONLY)
 # =========================================================
-logo_path = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
+with st.sidebar:
+    st.markdown("### ☕ Starbucks")
 
-if logo_path.exists():
-    st.image(str(logo_path), width=150)
-else:
-    st.warning("Starbucks logo file not found")
+    logo_path = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
+
+    if logo_path.exists():
+        st.image(str(logo_path), width=140)
+    else:
+        st.warning("Logo file not found")
 
 
 # =========================================================
@@ -89,7 +85,6 @@ else:
 st.title("☕ Starbucks Recommendation System")
 st.subheader("Ask a question about Starbucks menu items")
 st.caption("Examples: calories, caffeine, sugar-free drinks, recommendations")
-
 
 user_question = st.text_input(
     label="Your question",
@@ -116,6 +111,7 @@ if st.button("Ask", disabled=not user_question.strip()):
             data = response.json()
             answer = data.get("answer", "No answer returned.")
 
+            # ✅ STREAMLIT-NATIVE ANSWER RENDERING
             st.markdown("### 💬 LLM Answer")
             st.markdown(answer)
 
