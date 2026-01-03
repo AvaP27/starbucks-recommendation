@@ -27,7 +27,7 @@ def in_docker():
 BACKEND_URL = (
     "http://backend:8000/ask"
     if in_docker()
-    else "http://localhost:8000/ask"
+    else "http://backend:8000/ask"
 )
 
 
