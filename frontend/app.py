@@ -1,60 +1,60 @@
 import streamlit as st
 import requests
-import pandas as pd
-import os
 import socket
-from PIL import Image
 from pathlib import Path
 
 
-# --- Auto-detect Docker network ---
-def in_docker():
-    try:
-        # Docker containers usually have hostname 'backend' reachable
-        socket.gethostbyname("backend")
-        return True
-    except socket.gaierror:
-        return False
-
-# --- Set backend URL based on environment ---
-if in_docker():
-    BACKEND_URL = "http://backend:8000/ask"  # when frontend is in Docker
-else:
-    BACKEND_URL = "http://localhost:8000/ask"  # when running on host
-
-
-# Resolve absolute path (HF-safe)
-LOGO_PATH = Path("assets/starbucks_logo.png")
-
-if LOGO_PATH.exists():
-    st.sidebar.image(str(LOGO_PATH), width=140)
-else:
-    st.error(f"Logo not found at {LOGO_PATH.resolve()}")
-
-
-DEBUG = False  # set True only when troubleshooting
-
-if DEBUG:
-    st.write("DEBUG CWD:", Path.cwd())
-    st.write("DEBUG LOGO PATH:", LOGO_PATH.resolve())
-
-
+# =========================================================
+# PAGE CONFIG (MUST BE FIRST STREAMLIT CALL)
+# =========================================================
 st.set_page_config(
     page_title="Starbucks LLM",
     layout="wide"
 )
 
+
+# =========================================================
+# BACKEND URL (Docker vs Local)
+# =========================================================
+def in_docker():
+    try:
+        socket.gethostbyname("backend")
+        return True
+    except socket.gaierror:
+        return False
+
+
+BACKEND_URL = (
+    "http://backend:8000/ask"
+    if in_docker()
+    else "http://localhost:8000/ask"
+)
+
+
+# =========================================================
+# SIDEBAR LOGO (HF + LOCAL SAFE)
+# =========================================================
+LOGO_PATH = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
+
+if LOGO_PATH.exists():
+    st.sidebar.image(str(LOGO_PATH), width=140)
+else:
+    st.sidebar.markdown("## ☕ Starbucks")
+
+
+# =========================================================
+# GLOBAL CSS (STARBUCKS THEME – HF SAFE)
+# =========================================================
 st.markdown(
     """
     <style>
     /* ===============================
-       PAGE BACKGROUND (HF + LOCAL)
+       PAGE BACKGROUND
        =============================== */
     html, body, [data-testid="stAppViewContainer"], .stApp {
-        background-color: #EAF4F1 !important;  /* Starbucks light green */
+        background-color: #EAF4F1 !important;
     }
 
-    /* Remove default block backgrounds */
     [data-testid="stVerticalBlock"] {
         background-color: transparent !important;
     }
@@ -89,23 +89,13 @@ st.markdown(
 
     button:hover {
         background-color: #005F3D !important;
-        color: #FFFFFF !important;
     }
 
     /* ===============================
        HEADERS & TEXT
        =============================== */
-    .section-header {
-        font-size: 22px;
-        font-weight: 600;
-        color: #00704A;
-        margin-bottom: 6px;
-    }
-
-    .section-subtext {
-        font-size: 16px;
-        color: #1E3932;
-        margin-bottom: 12px;
+    h1, h2, h3 {
+        color: #00704A !important;
     }
 
     /* ===============================
@@ -118,24 +108,39 @@ st.markdown(
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         margin-bottom: 20px;
     }
+
+    /* ===============================
+       LLM ANSWER OUTPUT
+       =============================== */
+    [data-testid="stMarkdownContainer"] {
+        color: #1E3932 !important;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    [data-testid="stMarkdownContainer"] img {
+        background-color: white;
+        padding: 6px;
+        border-radius: 8px;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.markdown("<h1 style='color:#00704A;'>Starbucks Recommendation System ☕</h1>", unsafe_allow_html=True)
 
-st.markdown(
-    """
-    <div class="card">
-        <div class="section-header">☕ Ask a question about Starbucks menu items</div>
-        <div class="section-subtext">
-            Type your question below (e.g., calories, caffeine, recommendations).
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# =========================================================
+# MAIN TITLE (STREAMLIT NATIVE — HF SAFE)
+# =========================================================
+st.title("☕ Starbucks Recommendation System")
+st.markdown("---")
+
+
+# =========================================================
+# QUESTION HEADER (STREAMLIT NATIVE — HF SAFE)
+# =========================================================
+st.subheader("Ask a question about Starbucks menu items")
+st.caption("Type your question below (e.g., calories, caffeine, recommendations).")
 
 
 user_question = st.text_input(
@@ -145,22 +150,33 @@ user_question = st.text_input(
 )
 
 
-if st.button("Ask"):
-    if not user_question.strip():
-        st.warning("Please enter a question.")
-    else:
-        try:
-            with st.spinner("Contacting backend..."):
-                response = requests.post(BACKEND_URL, json={"question": user_question})
+# =========================================================
+# ASK BUTTON & BACKEND CALL
+# =========================================================
+if st.button("Ask", disabled=not user_question.strip()):
+    try:
+        with st.spinner("Contacting backend..."):
+            response = requests.post(
+                BACKEND_URL,
+                json={"question": user_question},
+                timeout=20
+            )
 
-            if response.status_code != 200:
-                st.error(f"Backend error: {response.text}")
-            else:
-                data = response.json()
+        if response.status_code != 200:
+            st.error(f"Backend error: {response.text}")
+        else:
+            data = response.json()
+            answer = data.get("answer", "No answer returned.")
 
-                # --- LLM Answer ---
-                st.subheader("💬 LLM Answer")
-                st.write(data.get("answer", "No answer returned."))
+            st.markdown(
+                f"""
+                <div class="card">
+                    <h3>💬 LLM Answer</h3>
+                    <div>{answer}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        except Exception as e:
-            st.error(f"Error connecting to backend: {e}")
+    except Exception as e:
+        st.error(f"Error connecting to backend: {e}")
