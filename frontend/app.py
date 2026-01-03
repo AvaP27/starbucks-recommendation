@@ -37,7 +37,7 @@ BACKEND_URL = (
 LOGO_PATH = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
 
 if LOGO_PATH.exists():
-    st.sidebar.image(str(LOGO_PATH), width=140)
+    st.sidebar.image(LOGO_PATH, width=140)
 else:
     st.sidebar.markdown("## ☕ Starbucks")
 
@@ -123,6 +123,19 @@ st.markdown(
         padding: 6px;
         border-radius: 8px;
     }
+    /* ===============================
+       SIDEBAR FIX (HF DARK OVERRIDE)
+       =============================== */
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+    }
+
+    section[data-testid="stSidebar"] img {
+        background-color: #FFFFFF !important;
+        padding: 6px;
+        border-radius: 8px;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
