@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 # =========================================================
-# PAGE CONFIG (MUST BE FIRST)
+# PAGE CONFIG (MUST BE FIRST STREAMLIT CALL)
 # =========================================================
 st.set_page_config(
     page_title="Starbucks LLM",
@@ -27,37 +27,101 @@ def in_docker():
 BACKEND_URL = (
     "http://backend:8000/ask"
     if in_docker()
-    else "http://127.0.0.1:8000/ask"
-"
+    else "http://localhost:8000/ask"
 )
 
 
 # =========================================================
-# GLOBAL CSS  (MINIMAL & SAFE)
+# SIDEBAR LOGO (HF + LOCAL SAFE)
+# =========================================================
+LOGO_PATH = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
+
+if LOGO_PATH.exists():
+    st.sidebar.image(str(LOGO_PATH), width=140)
+else:
+    st.sidebar.markdown("## ☕ Starbucks")
+
+
+# =========================================================
+# GLOBAL CSS (STARBUCKS THEME – HF SAFE)
 # =========================================================
 st.markdown(
     """
     <style>
-    /* Page background */
-    html, body, .stApp {
-        background-color: #EAF4F1;
+    /* ===============================
+       PAGE BACKGROUND
+       =============================== */
+    html, body, [data-testid="stAppViewContainer"], .stApp {
+        background-color: #EAF4F1 !important;
     }
 
-    /* Inputs */
+    [data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
+    }
+
+    /* ===============================
+       INPUTS & TEXT AREAS
+       =============================== */
     input, textarea {
         background-color: #FFFFFF !important;
         color: #1E3932 !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         border: 1px solid #C7DCD2 !important;
         font-size: 16px !important;
     }
 
-    /* Buttons */
+    input::placeholder, textarea::placeholder {
+        color: #6F8F85 !important;
+    }
+
+    /* ===============================
+       BUTTONS
+       =============================== */
     button {
         background-color: #00704A !important;
-        color: white !important;
-        border-radius: 8px !important;
+        color: #FFFFFF !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
         font-weight: 600 !important;
+        border: none !important;
+        padding: 0.5em 1.2em !important;
+    }
+
+    button:hover {
+        background-color: #005F3D !important;
+    }
+
+    /* ===============================
+       HEADERS & TEXT
+       =============================== */
+    h1, h2, h3 {
+        color: #00704A !important;
+    }
+
+    /* ===============================
+       CARD STYLE
+       =============================== */
+    .card {
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    /* ===============================
+       LLM ANSWER OUTPUT
+       =============================== */
+    [data-testid="stMarkdownContainer"] {
+        color: #1E3932 !important;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    [data-testid="stMarkdownContainer"] img {
+        background-color: white;
+        padding: 6px;
+        border-radius: 8px;
     }
     </style>
     """,
@@ -66,35 +130,28 @@ st.markdown(
 
 
 # =========================================================
-# SIDEBAR LOGO  (STREAMLIT-NATIVE ONLY)
-# =========================================================
-with st.sidebar:
-    st.markdown("### ☕ Starbucks")
-
-    logo_path = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
-
-    if logo_path.exists():
-        st.image(str(logo_path), width=140)
-    else:
-        st.warning("Logo file not found")
-
-
-# =========================================================
-# MAIN CONTENT (STREAMLIT-NATIVE ONLY)
+# MAIN TITLE (STREAMLIT NATIVE — HF SAFE)
 # =========================================================
 st.title("☕ Starbucks Recommendation System")
+st.markdown("---")
+
+
+# =========================================================
+# QUESTION HEADER (STREAMLIT NATIVE — HF SAFE)
+# =========================================================
 st.subheader("Ask a question about Starbucks menu items")
-st.caption("Examples: calories, caffeine, sugar-free drinks, recommendations")
+st.caption("Type your question below (e.g., calories, caffeine, recommendations).")
+
 
 user_question = st.text_input(
-    label="Your question",
-    placeholder="Which Starbucks drink has the least sugar?",
+    label="Ask a question about Starbucks menu items",
+    placeholder="Example: Which Starbucks drink has the least sugar?",
     label_visibility="collapsed"
 )
 
 
 # =========================================================
-# ASK BUTTON & RESPONSE
+# ASK BUTTON & BACKEND CALL
 # =========================================================
 if st.button("Ask", disabled=not user_question.strip()):
     try:
@@ -111,9 +168,15 @@ if st.button("Ask", disabled=not user_question.strip()):
             data = response.json()
             answer = data.get("answer", "No answer returned.")
 
-            # ✅ STREAMLIT-NATIVE ANSWER RENDERING
-            st.markdown("### 💬 LLM Answer")
-            st.markdown(answer)
+            st.markdown(
+                f"""
+                <div class="card">
+                    <h3>💬 LLM Answer</h3>
+                    <div>{answer}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
     except Exception as e:
         st.error(f"Error connecting to backend: {e}")
