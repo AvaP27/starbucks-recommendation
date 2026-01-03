@@ -37,9 +37,9 @@ BACKEND_URL = (
 LOGO_PATH = Path(__file__).resolve().parent.parent / "assets" / "starbucks_logo.png"
 
 if LOGO_PATH.exists():
-    st.sidebar.image(LOGO_PATH, width=140)
+    st.image(str(LOGO_PATH), width=160)
 else:
-    st.sidebar.markdown("## ☕ Starbucks")
+    st.markdown("## ☕ Starbucks")
 
 
 # =========================================================
