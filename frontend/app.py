@@ -24,20 +24,20 @@ else:
 
 
 # Resolve absolute path (HF-safe)
-ROOT_DIR = Path(__file__).resolve().parents[1]
-LOGO_PATH = ROOT_DIR / "assets" / "starbucks_logo.png"
-
-st.write("DEBUG LOGO PATH:", LOGO_PATH)  # TEMP: for HF debugging
-
 LOGO_PATH = Path("assets/starbucks_logo.png")
-
-st.write("DEBUG CWD:", Path.cwd())
-st.write("DEBUG LOGO PATH:", LOGO_PATH.resolve())
 
 if LOGO_PATH.exists():
     st.sidebar.image(str(LOGO_PATH), width=140)
 else:
     st.error(f"Logo not found at {LOGO_PATH.resolve()}")
+
+
+DEBUG = False  # set True only when troubleshooting
+
+if DEBUG:
+    st.write("DEBUG CWD:", Path.cwd())
+    st.write("DEBUG LOGO PATH:", LOGO_PATH.resolve())
+
 
 st.set_page_config(
     page_title="Starbucks LLM",
@@ -123,7 +123,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown("<h1 style='color:#00704A;'>Starbucks Recommendation System ☕</h1>", unsafe_allow_html=True)
 
+st.markdown(
+    """
+    <div class="card">
+        <div class="section-header">☕ Ask a question about Starbucks menu items</div>
+        <div class="section-subtext">
+            Type your question below (e.g., calories, caffeine, recommendations).
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 user_question = st.text_input(
