@@ -29,82 +29,102 @@ LOGO_PATH = ROOT_DIR / "assets" / "starbucks_logo.png"
 
 st.write("DEBUG LOGO PATH:", LOGO_PATH)  # TEMP: for HF debugging
 
+LOGO_PATH = Path("assets/starbucks_logo.png")
+
+st.write("DEBUG CWD:", Path.cwd())
+st.write("DEBUG LOGO PATH:", LOGO_PATH.resolve())
+
 if LOGO_PATH.exists():
-    logo = Image.open(LOGO_PATH)
-    st.sidebar.image(logo, width=140)
+    st.sidebar.image(str(LOGO_PATH), width=140)
 else:
-    st.error(f"Logo not found at {LOGO_PATH}")
+    st.error(f"Logo not found at {LOGO_PATH.resolve()}")
+
+st.set_page_config(
+    page_title="Starbucks LLM",
+    layout="wide"
+)
 
 st.markdown(
     """
     <style>
-    /* Force full-page background on HF */
+    /* ===============================
+       PAGE BACKGROUND (HF + LOCAL)
+       =============================== */
     html, body, [data-testid="stAppViewContainer"], .stApp {
-        background-color: #EAF4F1 !important;
+        background-color: #EAF4F1 !important;  /* Starbucks light green */
     }
 
-    /* Main content container */
+    /* Remove default block backgrounds */
     [data-testid="stVerticalBlock"] {
-        background-color: transparent;
+        background-color: transparent !important;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
-st.markdown(
-    """
-    <h1 style='color:#00704A;'>Starbucks Recommendation System ☕</h1>
-    """,
-    unsafe_allow_html=True
-)
-st.markdown(
-    """
-    <style>
-    /* Section header text */
+    /* ===============================
+       INPUTS & TEXT AREAS
+       =============================== */
+    input, textarea {
+        background-color: #FFFFFF !important;
+        color: #1E3932 !important;
+        border-radius: 10px !important;
+        border: 1px solid #C7DCD2 !important;
+        font-size: 16px !important;
+    }
+
+    input::placeholder, textarea::placeholder {
+        color: #6F8F85 !important;
+    }
+
+    /* ===============================
+       BUTTONS
+       =============================== */
+    button {
+        background-color: #00704A !important;
+        color: #FFFFFF !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 0.5em 1.2em !important;
+    }
+
+    button:hover {
+        background-color: #005F3D !important;
+        color: #FFFFFF !important;
+    }
+
+    /* ===============================
+       HEADERS & TEXT
+       =============================== */
     .section-header {
         font-size: 22px;
         font-weight: 600;
-        color: #00704A; /* Starbucks green */
+        color: #00704A;
         margin-bottom: 6px;
     }
 
-    /* Subtext / helper text */
     .section-subtext {
         font-size: 16px;
         color: #1E3932;
         margin-bottom: 12px;
     }
 
-    /* Increase input font size */
-    textarea, input {
-        font-size: 16px !important;
+    /* ===============================
+       CARD STYLE
+       =============================== */
+    .card {
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.set_page_config(page_title="Starbucks LLM", layout="wide")
 
 
-st.markdown(
-    """
-    <div style="
-        background-color:#F2F7F5;
-        padding:20px;
-        border-radius:12px;
-        margin-top:10px;
-        margin-bottom:20px;
-    ">
-        <div class='section-header'>☕ Ask a question about Starbucks menu items</div>
-        <div class='section-subtext'>
-            Type your question below (e.g., calories, caffeine, recommendations).
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 user_question = st.text_input(
     label="Ask a question about Starbucks menu items",
