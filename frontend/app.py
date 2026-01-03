@@ -24,14 +24,33 @@ else:
 
 
 # Resolve absolute path (HF-safe)
-BASE_DIR = Path(__file__).resolve().parent.parent
-LOGO_PATH = BASE_DIR / "assets" / "starbucks_logo.png"
+ROOT_DIR = Path(__file__).resolve().parents[1]
+LOGO_PATH = ROOT_DIR / "assets" / "starbucks_logo.png"
+
+st.write("DEBUG LOGO PATH:", LOGO_PATH)  # TEMP: for HF debugging
 
 if LOGO_PATH.exists():
     logo = Image.open(LOGO_PATH)
-    st.image(logo, width=120)
+    st.sidebar.image(logo, width=140)
 else:
-    st.warning("Logo not found")
+    st.error(f"Logo not found at {LOGO_PATH}")
+
+st.markdown(
+    """
+    <style>
+    /* Force full-page background on HF */
+    html, body, [data-testid="stAppViewContainer"], .stApp {
+        background-color: #EAF4F1 !important;
+    }
+
+    /* Main content container */
+    [data-testid="stVerticalBlock"] {
+        background-color: transparent;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown(
     """
