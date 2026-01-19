@@ -78,8 +78,8 @@ st.markdown(
        BUTTONS
        =============================== */
     button {
-        background-color: #00704A !important;
-        color: #FFFFFF !important;
+        background-color: #8FD3B6 !important;  /* light Starbucks mint */
+        color: #1E3932 !important;             /* dark green text */
         border-radius: 10px !important;
         font-size: 16px !important;
         font-weight: 600 !important;
@@ -90,6 +90,7 @@ st.markdown(
     button:hover {
         background-color: #005F3D !important;
     }
+
 
     /* ===============================
        HEADERS & TEXT
